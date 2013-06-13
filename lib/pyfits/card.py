@@ -8,7 +8,7 @@ import numpy as np
 
 import pyfits
 from pyfits.util import (_str_to_num, _is_int, deprecated, maketrans,
-                         translate, _words_group, lazyproperty)
+                         translate, _words_group, lazyproperty, lazyregex)
 from pyfits.verify import _Verify, _ErrList, VerifyError, VerifyWarning
 
 
@@ -298,10 +298,10 @@ class Card(_Verify):
     length = CARD_LENGTH
 
     # String for a FITS standard compliant (FSC) keyword.
-    _keywd_FSC_RE = re.compile(r'^[A-Z0-9_-]{0,%d}$' % KEYWORD_LENGTH)
+    _keywd_FSC_RE = lazyregex(r'^[A-Z0-9_-]{0,%d}$' % KEYWORD_LENGTH)
     # This will match any printable ASCII character excluding '='
-    _keywd_hierarch_RE = re.compile(r'^(?:HIERARCH +)?(?:^[ -<>-~]+ ?)+$',
-                                    re.I)
+    _keywd_hierarch_RE = lazyregex(r'^(?:HIERARCH +)?(?:^[ -<>-~]+ ?)+$',
+                                   re.I)
 
     # A number sub-string, either an integer or a float in fixed or
     # scientific notation.  One for FSC and one for non-FSC (NFSC) format:
@@ -315,14 +315,14 @@ class Card(_Verify):
     # This regex helps delete leading zeros from numbers, otherwise
     # Python might evaluate them as octal values (this is not-greedy, however,
     # so it may not strip leading zeros from a float, which is fine)
-    _number_FSC_RE = re.compile(r'(?P<sign>[+-])?0*?(?P<digt>%s)'
-                                % _digits_FSC)
-    _number_NFSC_RE = re.compile(r'(?P<sign>[+-])? *0*?(?P<digt>%s)'
-                                 % _digits_NFSC)
+    _number_FSC_RE = lazyregex(r'(?P<sign>[+-])?0*?(?P<digt>%s)'
+                               % _digits_FSC)
+    _number_NFSC_RE = lazyregex(r'(?P<sign>[+-])? *0*?(?P<digt>%s)'
+                                % _digits_NFSC)
 
     # FSC commentary card string which must contain printable ASCII characters.
     _ascii_text = r'[ -~]*$'
-    _comment_FSC_RE = re.compile(_ascii_text)
+    _comment_FSC_RE = lazyregex(_ascii_text)
 
     # Checks for a valid value/comment string.  It returns a match object
     # for a valid value/comment string.
@@ -331,7 +331,7 @@ class Card(_Verify):
     # None, meaning the keyword is undefined.  The comment field will
     # return a match if the comment separator is found, though the
     # comment maybe an empty string.
-    _value_FSC_RE = re.compile(
+    _value_FSC_RE = lazyregex(
         r'(?P<valu_field> *'
             r'(?P<valu>'
 
@@ -361,7 +361,7 @@ class Card(_Verify):
             r'(?P<comm>[!-~][ -~]*)?'
         r')?$')
 
-    _value_NFSC_RE = re.compile(
+    _value_NFSC_RE = lazyregex(
         r'(?P<valu_field> *'
             r'(?P<valu>'
                 r'\'(?P<strg>([ -~]+?|\'\'|) *?)\'(?=$|/| )|'
@@ -385,19 +385,19 @@ class Card(_Verify):
     _rvkc_keyword_val_comm = (r' +%s *(/ *(?P<comm>[ -~]*))?$' %
                               _rvkc_keyword_val)
 
-    _rvkc_field_specifier_val_RE = re.compile(_rvkc_field_specifier_val + '$')
+    _rvkc_field_specifier_val_RE = lazyregex(_rvkc_field_specifier_val + '$')
 
     # regular expression to extract the key and the field specifier from a
     # string that is being used to index into a card list that contains
     # record value keyword cards (ex. 'DP1.AXIS.1')
     _rvkc_keyword_name_RE = (
-        re.compile(r'(?P<keyword>%s)\.(?P<field_specifier>%s)$' %
-                   (_rvkc_identifier, _rvkc_field_specifier_s)))
+        lazyregex(r'(?P<keyword>%s)\.(?P<field_specifier>%s)$' %
+                  (_rvkc_identifier, _rvkc_field_specifier_s)))
 
     # regular expression to extract the field specifier and value and comment
     # from the string value of a record value keyword card
     # (ex "'AXIS.1: 1' / a comment")
-    _rvkc_keyword_val_comm_RE = re.compile(_rvkc_keyword_val_comm)
+    _rvkc_keyword_val_comm_RE = lazyregex(_rvkc_keyword_val_comm)
 
     _commentary_keywords = ['', 'COMMENT', 'HISTORY', 'END']
 

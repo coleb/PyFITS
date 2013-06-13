@@ -14,13 +14,13 @@ from pyfits.card import Card, CardList, BLANK_CARD, KEYWORD_LENGTH, _pad
 from pyfits.file import _File, PYTHON_MODES
 from pyfits.util import (BLOCK_SIZE, deprecated, isiterable, encode_ascii,
                          decode_ascii, fileobj_mode, fileobj_is_binary,
-                         _pad_length)
+                         _pad_length, lazyregex)
 
 
 PY3K = sys.version_info[:2] >= (3, 0)
 
 
-HEADER_END_RE = re.compile(encode_ascii('END {77} *'))
+HEADER_END_RE = lazyregex(encode_ascii('END {77} *'))
 
 
 # According to the FITS standard the only characters that may appear in a

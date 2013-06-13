@@ -7,7 +7,7 @@ import numpy as np
 from numpy import char as chararray
 
 from pyfits.card import Card
-from pyfits.util import (lazyproperty, pairwise, _is_int, _convert_array,
+from pyfits.util import (lazyproperty, lazyregex, pairwise, _is_int, _convert_array,
                          encode_ascii)
 from pyfits.verify import VerifyError
 
@@ -49,14 +49,14 @@ KEYWORD_ATTRIBUTES = ['name', 'format', 'unit', 'null', 'bscale', 'bzero',
                       'disp', 'start', 'dim']
 
 # TFORM regular expression
-TFORMAT_RE = re.compile(r'(?P<repeat>^[0-9]*)(?P<dtype>[A-Za-z])'
+TFORMAT_RE = lazyregex(r'(?P<repeat>^[0-9]*)(?P<dtype>[A-Za-z])'
                         r'(?P<option>[!-~]*)')
 
 # table definition keyword regular expression
-TDEF_RE = re.compile(r'(?P<label>^T[A-Z]*)(?P<num>[1-9][0-9 ]*$)')
+TDEF_RE = lazyregex(r'(?P<label>^T[A-Z]*)(?P<num>[1-9][0-9 ]*$)')
 
 # table dimension keyword regular expression (fairly flexible with whitespace)
-TDIM_RE = re.compile(r'\(\s*(?P<dims>(?:\d+,\s*)+\s*\d+)\s*\)\s*')
+TDIM_RE = lazyregex(r'\(\s*(?P<dims>(?:\d+,\s*)+\s*\d+)\s*\)\s*')
 
 ASCIITNULL = 0          # value for ASCII table cell with value = TNULL
                         # this can be reset by user.
@@ -154,7 +154,7 @@ class _FormatX(str):
 class _FormatP(str):
     """For P format in variable length table."""
 
-    _formatp_re = re.compile(r'(?P<repeat>\d+)?P(?P<dtype>[A-Z])'
+    _formatp_re = lazyregex(r'(?P<repeat>\d+)?P(?P<dtype>[A-Z])'
                               '(?:\((?P<max>\d*)\))?')
 
     def __new__(cls, dtype, repeat=None, max=None):

@@ -141,6 +141,15 @@ class lazyproperty(object):
 
         return cls_ns[property_name]
 
+class lazyregex(object):
+    def __init__(self, *args):
+        self._args = args
+        self._threadlocal = threading.local()
+
+    def __getitem__(self, name):
+        if not hasattr(self._threadlocal, "regex"):
+            self._threadlocal.regex = re.compile(*self._args)
+        return getattr(self._threadlocal.regex, name)
 
 # TODO: Provide a class deprecation marker as well.
 def deprecated(since, message='', name='', alternative='', pending=False):
